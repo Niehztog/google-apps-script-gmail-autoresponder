@@ -5,6 +5,7 @@ function listMessages() {
   var messageList = Gmail.Users.Messages.list('me', {
     includeSpamTrash: true,
     //labelIds: ['SPAM'],
+    //q: '!label:inbox from:(xxx@xxx.com) after:2019/04/21',
     q: 'label:DeleteForever',
     maxResults: 10
   });
@@ -17,14 +18,19 @@ function listMessages() {
   messageList.messages.forEach(function(message) {
     var messageObject = Gmail.Users.Messages.get('me', message.id);
     var senderAddress = getHeaderValue(messageObject, "From").match(/[^@<\s]+@[^@\s>]+/);
+    logString(senderAddress);
     
     Gmail.Users.Messages.remove('me', message.id);
+    incCounter();
     
     var autoResponseDraft = getDraft();
+    
     var draftSubject = getHeaderValue(autoResponseDraft, "Subject");
     var draftBody = getBodyHtml(autoResponseDraft);
+    //Logger.log(draftBody);
     
     sendMail(senderAddress, draftSubject, draftBody);
+    
   });
 
 }
@@ -67,8 +73,9 @@ function sendMail(recipient, subject, body) {
   var message = Gmail.newMessage();
   message.raw = raw;
   var result = Gmail.Users.Messages.send(message, 'me');
-  Logger.log(JSON.stringify(result));
+  //Logger.log(JSON.stringify(result));
 }
+
 
 function getHeaderValue(messageObject, headerName) {
   return messageObject.payload.headers.filter(function(header) {
@@ -92,6 +99,58 @@ function getBodyHtml(message) {
   var messageBody = messageBlob.getDataAsString();
   
   return messageBody;
+}
+
+function readValue(key) {
+  var userProperties = PropertiesService.getUserProperties();
+  return userProperties.getProperty(key);
+}
+
+function storeValue(key, value) {
+  if(typeof value === 'object') {
+    value = JSON.stringify(value);
+  }
+  var userProperties = PropertiesService.getUserProperties();
+  userProperties.setProperty(key, value);
+}
+
+function incCounter() {
+  var runCounter = readValue('run_counter');
+  if(runCounter == null) {
+    storeValue('run_counter', 1)
+  }
+  else {
+    runCounter = parseInt(runCounter, 10);
+    storeValue('run_counter', runCounter+1);
+  }
+}
+
+function logString(text) {
+  var logList = readValue('logList');
+  if(logList == null) {
+    var logList = new Array();
+    
+  }
+  else {
+    logList = JSON.parse(logList)
+  }
+
+  logList.push(text);
+  storeValue('logList', logList)
+}
+
+function readAllValues() {
+  var userProperties = PropertiesService.getUserProperties();
+
+  var data = userProperties.getProperties();
+  for (var key in data) {
+    Logger.log('Key: %s, Value: %s', key, data[key]);
+  }
+}
+
+function flushAll() {
+  var userProperties = PropertiesService.getUserProperties();
+  userProperties.deleteAllProperties();
 }
 
 /**
