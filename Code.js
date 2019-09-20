@@ -63,13 +63,14 @@ function getDraft() {
 
 /**
  * https://stackoverflow.com/search?q=%5Bgoogle-apps-script%5D+Gmail.Users.messages.send
+ * https://gist.github.com/oshliaer/7e96514c3cb3075dde02#file-message-gs
  */
 function sendMail(recipient, subject, body) {
-  var raw = Utilities.base64EncodeWebSafe("Subject: "+subject+"\r\n" +
+  var raw = Utilities.base64EncodeWebSafe("Subject: =?UTF-8?B?" + Utilities.base64Encode(subject, Utilities.Charset.UTF_8) + "?=\r\n" +
                                         "From: " + Session.getActiveUser().getEmail() + "\r\n" +
                                         "To:" +recipient+"\r\n" +
                                         "Content-Type: text/html; charset=UTF-8\r\n\r\n" +
-                                        body+"\r\n\r\n");
+                                        body+"\r\n\r\n", Utilities.Charset.UTF_8);
   var message = Gmail.newMessage();
   message.raw = raw;
   var result = Gmail.Users.Messages.send(message, 'me');
@@ -96,7 +97,7 @@ function getBodyHtml(message) {
   })[0];
   
   var messageBlob = Utilities.newBlob(part.body.data, Utilities.Charset.UTF_8);
-  var messageBody = messageBlob.getDataAsString();
+  var messageBody = messageBlob.getDataAsString("UTF-8");
   
   return messageBody;
 }
