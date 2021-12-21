@@ -8,7 +8,9 @@
     }]
   },
   "exceptionLogging": "STACKDRIVER",
+  "oauthScopes": ["https://www.googleapis.com/auth/gmail.modify"],
   "executionApi": {
     "access": "ANYONE"
-  }
+  },
+  "runtimeVersion": "DEPRECATED_ES5"
 }
