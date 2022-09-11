@@ -8,7 +8,7 @@
     }]
   },
   "exceptionLogging": "STACKDRIVER",
-  "oauthScopes": ["https://www.googleapis.com/auth/gmail.modify"],
+  "oauthScopes": ["https://www.googleapis.com/auth/gmail.modify", "https://mail.google.com/"],
   "executionApi": {
     "access": "ANYONE"
   },
