@@ -1,5 +1,6 @@
 /**
- * https://developers.google.com/gmail/api/v1/reference/users/messages/get
+ * https://developers.google.com/gmail/api/reference/rest/v1/users.messages/get
+ * https://developers.google.com/gmail/api/reference/rest/v1/users.messages/delete
  */
 function listMessages() {
   var messageList = Gmail.Users.Messages.list('me', {
